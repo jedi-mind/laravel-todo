@@ -23,7 +23,7 @@ Route::get('/token', function (Request $request) {
 
 Route::get('/', [TasksController::class, 'showTasks']);
 
-Route::get('delete/{id}', [TasksController::class, 'deleteTask']);
+Route::post('delete', [TasksController::class, 'deleteTask']);
 
 Route::post('add', [TasksController::class, 'addTask']);
 

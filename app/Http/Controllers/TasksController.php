@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\Task;
 
 
@@ -16,29 +15,43 @@ class TasksController extends Controller
         ]);
     }
 
-    public function addTask (Request $request) 
+    public function addTask (Request $request)
     {
-        Task::create([
-            'task' => $request->task
+        $input = $request->all();
+
+        $request->validate([
+            'task' => ['required', 'max:100'],
         ]);
 
-        return redirect('/');
+        Task::create($input);
+
+        return redirect('/')->with('success','Added new Task!');
     }
 
     public function editTask(Request $request)
     {
+
+        //Sollte eher ueber livewire gehen
+
+        $request->validate([
+            'editedTask' => ['required', 'max:100'],
+        ]);
+
         $id = $request->input('id');
         $editedTask = $request->input('editedTask');
-        
-        DB::update('update tasks set task = ? where id = ?',[$editedTask,$id]);
-        
-        return redirect('/');
+
+        $task = Task::find($id);
+        $task->task = $editedTask;
+        $task->save();
+
+        return redirect('/')->with('success', 'Updated Task!');
     }
 
-    public static function deleteTask($id) 
+    public function deleteTask(Request $request)
     {
-        DB::delete('delete from tasks where id = ?', [$id]);
-        
-        return redirect('/');
+        $id = $request->input('id');
+        Task::find($id)->delete();
+
+        return redirect('/')->with('success', 'Deleted Task!');
     }
 }

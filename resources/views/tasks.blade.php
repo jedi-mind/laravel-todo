@@ -1,18 +1,56 @@
 @extends('layouts.app')
 
 @section('content')
-    
-    <h1 class="text-5xl text-center py-6">Simple Todo List</h1>
+
+    <h1 class="py-6 text-5xl text-center">Simple Todo List</h1>
 
     <div class="w-11/12 mx-auto">
+
+        {{-- add a new task --}}
+
         <form action="/add" method="post" class="flex">
             @csrf
             <input type="text" name="task" class="w-10/12 h-10 rounded-sm">
-            <button type="submit" class="mx-auto bg-blue-400 w-2/12 rounded-sm">Add Task</button>
+            <button type="submit" class="w-2/12 mx-auto bg-blue-400 rounded-sm">Add Task</button>
         </form>
+
+        {{-- show error messages --}}
+
+        @if (count($errors) > 0)
+            <div x-data="{ messageVisible: true }">
+                <div x-show="messageVisible" class="flex flex-row justify-between w-full px-5 py-2 mt-3 bg-red-400 rounded-sm">
+                    <div>
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li><strong>{{ $error }}</strong></li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <div>
+                        <button @click="messageVisible = false"><sup><strong>×</strong></sup></button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- show success messages --}}
+
+        @if ($message = Session::get('success'))
+            <div x-data="{ messageVisible: true }">
+                <div x-show="messageVisible" class="flex flex-row justify-between w-full px-5 py-2 mt-3 bg-green-500 rounded-sm">
+                    <div>
+                        <strong>{{ $message }}</strong>
+                    </div>
+                    <div>
+                        <button @click="messageVisible = false"><sup><strong>×</strong></sup></button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
     </div>
 
-    <table class="table-fixed w-full text-center mt-3">
+    <table class="w-full mt-3 text-center table-fixed">
         <thead>
             <tr>
                 <th class="w-10">#</th>
@@ -22,49 +60,50 @@
             </tr>
         </thead>
         <tbody>
-
-            @php
-                $id = 1
-            @endphp
-
             @foreach ($tasks as $task)
             <tr class="hover:bg-gray-800 hover:text-gray-200">
                 <td>
-                    {{ $id }}
+                    {{ $loop->iteration }}
                 </td>
 
                 <td class="text-left">{{ $task->task }}</td>
-                
+
                 <td>
+
+                    {{-- Update a Task --}}
+
                     <div x-data="{ open: false }">
-                        <button @click="open = !open" class="bg-yellow-400 text-gray-800 rounded-sm px-1 py-1">
+                        <button @click="open = !open" class="px-1 py-1 text-gray-800 bg-yellow-400 rounded-sm">
                             Edit
                         </button>
 
-                        <div x-show="open" x-cloak="" class="fixed flex justify-center items-center inset-0 z-50 bg-black bg-opacity-75">
-                            <div @click.away="open = false" class="bg-gray-200 text-gray-800 rounded shadow-lg p-8 mb-24 relative">
-                                <button class="absolute right-0 top-0 px-3 py-1" @click="open = false">x</button>
-                                
+
+                        <div x-show="open" x-cloak="" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
+                            <div @click.away="open = false" class="relative p-8 mb-24 text-gray-800 bg-gray-200 rounded shadow-lg">
+                                <button class="absolute top-0 right-0 px-3 py-1" @click="open = false">x</button>
+
                                 <form action="/edit" method="post">
                                     @csrf
                                     <input type="hidden" name="id" value="{{ $task->id }}">
                                     <input type="text" name="editedTask" placeholder="{{ $task->task }}" required>
-                                    <button type="submit" class="bg-yellow-400 text-gray-800 rounded-sm">Edit</button>
+                                    <button type="submit" class="text-gray-800 bg-yellow-400 rounded-sm">Edit</button>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </td>
-                
+
                 <td>
-                    <a href="delete/{{ $task->id }}" class="bg-red-600 text-gray-800 rounded-sm px-1 py-1">
-                        [x]
-                    </a>
+
+                    {{-- Delete a Task --}}
+
+                    <form action="/delete" method="post">
+                        @csrf
+                        <input type="hidden" name="id" value="{{ $task->id }}">
+                        <button type="submit" class="px-1 py-1 text-gray-800 bg-red-600 rounded-sm">[x]</button>
+                    </form>
                 </td>
             </tr>
-                @php
-                    $id++
-                @endphp
             @endforeach
 
         </tbody>
