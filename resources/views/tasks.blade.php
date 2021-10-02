@@ -18,7 +18,7 @@
 
         @if (count($errors) > 0)
             <div x-data="{ messageVisible: true }">
-                <div x-show="messageVisible" class="flex flex-row justify-between w-full px-5 py-2 mt-3 bg-red-400 rounded-sm">
+                <div x-show="messageVisible" x-transition x-init="setTimeout(() => messageVisible = false, 3000)" class="flex flex-row justify-between w-full px-5 py-2 mt-3 bg-red-400 rounded-sm">
                     <div>
                         <ul>
                             @foreach ($errors->all() as $error)
@@ -37,7 +37,7 @@
 
         @if ($message = Session::get('success'))
             <div x-data="{ messageVisible: true }">
-                <div x-show="messageVisible" class="flex flex-row justify-between w-full px-5 py-2 mt-3 bg-green-500 rounded-sm">
+                <div x-show="messageVisible" x-transition x-init="setTimeout(() => messageVisible = false, 3000)" class="flex flex-row justify-between w-full px-5 py-2 mt-3 bg-green-500 rounded-sm">
                     <div>
                         <strong>{{ $message }}</strong>
                     </div>
